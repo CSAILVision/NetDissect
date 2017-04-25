@@ -1,4 +1,4 @@
-# Network Dissection: Quantifying Interpretability of Deep Visual Representations
+# Network Dissection
 
 ## Introduction
 This repository contains the demo code for the [CVPR'17 paper](http://netdissect.csail.mit.edu/final-network-dissection.pdf) Network Dissection: Quantifying Interpretability of Deep Visual Representations. You can use this code with naive [Caffe](https://github.com/BVLC/caffe), with matcaffe and pycaffe compiled. There are dissection results for several networks at the [project page](http://netdissect.csail.mit.edu/).
