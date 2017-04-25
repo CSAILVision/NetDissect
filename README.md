@@ -28,7 +28,7 @@ This code includes
 Note that you could run ```./dlbroden.sh``` to download Broden dataset with images in all three resolution (227x227,224x224,384x384), or run ```./dlzoo.sh``` to download more CNN models. AlexNet models work with 227x227 image input, while VGG, ResNet, GoogLeNet works with 224x224 image input.
 
 ## Run
-* Run Network Dissection to compare two layers of AlexNet trained on Places365. Results will be saved to ```dissection/caffe_reference_model_places365/```. It takes about 40 mintues to run.
+* Run Network Dissection to compare two layers of AlexNet trained on Places365. Results will be saved to ```dissection/caffe_reference_model_places365/```. It takes about 40 mintues to run, and it will generate about 1.5GB intermediate results (mmap) for one layer, which you could delete after the code finishes running.
 
 ```
     ./rundissect.sh --model caffe_reference_places365 --layers "conv4 conv5" --dataset dataset/broden1_227 --resolution 227
