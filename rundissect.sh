@@ -3,20 +3,18 @@
 # To use this, put the caffe model to be tested in the "zoo" directory
 # the following naming convention for a model called "vgg16_places365":
 #
-# zoo/vgg16_places365.caffemodel
-# zoo/vgg16_places365.prototxt
+# zoo/caffe_reference_places365.caffemodel
+# zoo/caffe_reference_places365.prototxt
 #
 # and then, with scipy and pycaffe available in your python, run:
 #
-# ./rundissect.sh --model vgg16_places365 --layers "conv3_3 conv4_3 conv5_3"
+# ./rundissect.sh --model caffe_reference_places365 --layers "conv4 conv5"
 #
-# the output will be placed in a directory dissection/vgg_places365/
+# the output will be placed in a directory dissection/caffe_reference_places365/
 #
 # More options are listed below.
 
 # Defaults
-DATASET="dataset/broden1_224"
-RESOLUTION="224"
 THRESHOLD="0.04"
 WORKDIR="dissection"
 TALLYDEPTH=2048
