@@ -38,7 +38,8 @@ Note that you could run ```./dlbroden.sh``` to download Broden dataset with imag
 
 ```
     ./rundissect.sh --model caffe_reference_imagenet --layers "conv3 conv4 conv5" --dataset dataset/broden1_227 --resolution 227
-`
+```
+
 
 * If you need to regenerate the Broden dataset from scratch, you could run ```./makebroden.sh```. The script will download the pieces and merge them.
 
