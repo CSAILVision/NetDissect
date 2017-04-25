@@ -8,7 +8,7 @@
 #
 # and then, with scipy and pycaffe available in your python, run:
 #
-# ./rundissect.sh --dir vgg16_places365 --layers "conv3_3 conv4_3 conv5_3"
+# ./rundissect.sh --model vgg16_places365 --layers "conv3_3 conv4_3 conv5_3"
 #
 # the output will be placed in a directory dissection/vgg_places365/
 #
@@ -38,7 +38,7 @@ do
 key="$1"
 
 case $key in
-    -d|--dir)
+    -d|--model)
     DIR="$2"
     shift
     ;;
@@ -121,7 +121,7 @@ function globexists {
 }
 
 if [ -z $DIR ]; then
-  echo '--dir directory' must be specified
+  echo '--model directory' must be specified
   exit 1
 fi
 
