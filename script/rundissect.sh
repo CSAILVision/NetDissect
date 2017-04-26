@@ -29,6 +29,9 @@ FORCE="none"
 ENDAFTER="none"
 MODELDIR="zoo"
 
+# Start from parent directory of script
+cd "$(dirname "$(dirname "$(readlink -f "$0")")")"
+
 # Parse command-line arguments. http://stackoverflow.com/questions/192249
 
 while [[ $# -gt 1 ]]
@@ -183,7 +186,7 @@ if [ -z "${FORCE##*probe*}" ] || \
 then
 
 echo 'Testing activations'
-python netprobe.py \
+python src/netprobe.py \
     --directory $WORKDIR/$DIR \
     --blobs $LAYERS \
     --weights $WEIGHTS \
@@ -210,7 +213,7 @@ if [ -z "${FORCE##*sort*}" ] || \
 then
 
 echo 'Collecting quantiles of activations'
-python quantprobe.py \
+python src/quantprobe.py \
     --directory $WORKDIR/$DIR \
     --blobs $LAYERS
 [[ $? -ne 0 ]] && exit $?
@@ -237,7 +240,7 @@ if [ -z "${FORCE##*tally*}" ] || \
 then
 
 echo 'Tallying counts'
-python labelprobe.py \
+python src/labelprobe.py \
     --directory $WORKDIR/$DIR \
     --quantile $QUANTILE \
     --tally_depth $TALLYDEPTH \
@@ -263,7 +266,7 @@ if [ -z "${FORCE##*imgmax*}" ] || \
 then
 
 echo 'Computing imgmax'
-python maxprobe.py \
+python src/maxprobe.py \
     --directory $WORKDIR/$DIR \
     --blobs $LAYERS
 
@@ -286,7 +289,7 @@ if [ -z "${FORCE##*view*}" ] || \
 then
 
 echo 'Generating views'
-python viewprobe.py \
+python src/viewprobe.py \
     --directory $WORKDIR/$DIR \
     --format csv,html,quantmat \
     --imscale 72 \
@@ -312,7 +315,7 @@ then
 PERCENT=$(printf '%g%%' $(echo "scale=0; $THRESHOLD * 100" | bc))
 
 echo 'Generating graph'
-python graphprobe.py \
+python src/graphprobe.py \
     --directories $WORKDIR/$DIR \
     --blobs $LAYERS \
     --labels $LAYERS \

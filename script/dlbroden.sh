@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Start from parent directory of script
+cd "$(dirname "$(dirname "$(readlink -f "$0")")")"
+
 # Download broden1_224
 if [ ! -f dataset/broden1_224/index.csv ]
 then

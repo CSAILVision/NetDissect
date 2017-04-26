@@ -77,7 +77,10 @@ def get_color_map():
         #         w2c.argmax(axis=1).reshape(32, 32, 32), 0, 2)
         # numpy.save('w2color', _cached_w2color, False)
         # instead just load this from the saved .npy file
-        _cached_w2color = numpy.load('w2color.npy')
+        from inspect import getsourcefile
+        import os.path
+        _cached_w2color = numpy.load(os.path.join(
+            os.path.dirname(getsourcefile(lambda:0)), 'w2color.npy'))
     return _cached_w2color
 
 def label_colors(im):
@@ -104,3 +107,6 @@ def posterize(im, use_mean_colors=False):
          return mean_color_values[label_colors(im)]
     else:
          return color_values[label_colors(im)]
+
+if __name__ == '__main__':
+    print get_color_map()

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Start from parent directory of script
+cd "$(dirname "$(dirname "$(readlink -f "$0")")")"
+
 # PASCAL 2010 Images
 if [ ! -f dataset/pascal/VOC2010/ImageSets/Segmentation/train.txt ]
 then
@@ -115,17 +118,17 @@ fi
 if [ ! -f dataset/broden1_224/index.csv ]
 then
 echo "Building Broden1 224"
-python joinseg.py --size=224
+python src/joinseg.py --size=224
 fi
 
 if [ ! -f dataset/broden1_227/index.csv ]
 then
 echo "Building Broden1 227"
-python joinseg.py --size=227
+python src/joinseg.py --size=227
 fi
 
 if [ ! -f dataset/broden1_384/index.csv ]
 then
 echo "Building Broden1 384"
-python joinseg.py --size=384
+python src/joinseg.py --size=384
 fi
