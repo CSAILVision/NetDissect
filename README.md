@@ -43,6 +43,8 @@ Note that you can run ```script/dlbroden.sh``` to download Broden dataset with i
 
 * If you need to regenerate the Broden dataset from scratch, you can run ```script/makebroden.sh```. The script will download the pieces and merge them.
 
+* Network dissection depends on scipy as well as pycaffe. [Details on installing pycaffe can be found here](http://caffe.berkeleyvision.org/tutorial/interfaces.html#python).
+
 ## Plot
 * After the csv file containing the raw data of the unit semantics is generated, you could use the sample scripts in ```plot/extract_csv.m``` to plot the figure. ```plot/semantics_cvpr_release.mat``` contains the semantics of all the networks analyzed in the CVPR paper. It will generate a [figure](plot/semantics_allnetwork.pdf) showing the number of unique detectors across different networks.
 
