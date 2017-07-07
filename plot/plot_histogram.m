@@ -10,7 +10,7 @@ concepts_select = {'object','texture','scene'}; % select the concepts to plot
 [concepts_select, ia, ib] = intersect(concepts_select, concepts);
 indices_concepts_select = indices_concepts(ib);
 
-for netID = 2%numel(stat.networks_name)
+for netID = 1:numel(stat.networks_name)
     figure
     semantics_network = unit_semantics{netID,3};
     num_unit = size(semantics_network,1);
@@ -36,4 +36,5 @@ for netID = 2%numel(stat.networks_name)
         set(gca,'FontSize',20);
         xlim(gca,[0 numel(uniquedetectors)+1])  
     end
+    xlabel(strrep(stat.networks_name{netID},'_','-'));
 end
