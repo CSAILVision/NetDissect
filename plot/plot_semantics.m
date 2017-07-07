@@ -1,3 +1,8 @@
+% sample script to plot the summary of detector numbers for all the
+% networks
+% run extract_csv.m first to extract the semantics from the raw csv if you
+% jush finish running network dissection
+
 clear
 load('semantics_cvpr_release.mat');
 
@@ -15,6 +20,7 @@ stat.networks_name = stat.networks_name(idx_sort);
 stat.layers_name = stat.layers_name(idx_sort);
 stat.ratio_detectors = stat.ratio_detectors(idx_sort,:);
 stat.num_uniquedetectors = stat.num_uniquedetectors(idx_sort,:);
+stat.num_detectors = stat.num_detectors(idx_sort,:);
 
 disp(stat);
 networks_print = getPrintName(stat.networks_name,'semantics');
@@ -26,14 +32,15 @@ networks_print = getPrintName(stat.networks_name,'semantics');
 % xticks([1:size(stat.ratio_detectors,1)])
 % xticklabels(networks_print),xtickangle(45)
 
-figure,
+figure, 
+subplot(1,2,1);
 bar( stat.num_uniquedetectors(:,2:end),'stacked'),
-legend(stat.concepts(2:end)),ylabel('Number of unique detectors');
+legend(stat.concepts(2:end)),title('Number of unique detectors');
 xticks([1:size(stat.ratio_detectors,1)])
 xticklabels(networks_print), xtickangle(45)
 
-% figure,
-% bar( stat.num_detectors(:,2:end),'stacked'),
-% legend(stat.concepts(2:end)),title('Number of Detectors');
-% xticks([1:size(stat.num_detectors,1)])
-% xticklabels(networks_print), xtickangle(45)
+subplot(1,2,2);
+bar( stat.num_detectors(:,2:end),'stacked'),
+legend(stat.concepts(2:end)),title('Number of detectors');
+xticks([1:size(stat.num_detectors,1)])
+xticklabels(networks_print), xtickangle(45)
