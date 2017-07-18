@@ -1,11 +1,11 @@
 # pre-defined setting
 
+WORKDIR=probes
 DIR=pytorch_alexnet_imagenet
 ARCH='alexnet' # [alexnet,squeezenet1_1,resnet18,...]. It should work for all the models in https://github.com/pytorch/vision/tree/master/torchvision/models
 LAYERS="features"
 NUMCLASSES=1000
-DATASET=/data/vision/torralba/deepscene/david_data/bulk/uniseg4_227
-WORKDIR=probes
+DATASET=dataset/broden1_227
 WEIGHTS="none"
 
 # default setting
