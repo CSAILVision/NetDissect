@@ -350,7 +350,7 @@ def centered_arange(fieldmap, activation_shape, reduction=1):
     offset, size, step = fieldmap
     r = reduction
     return tuple(numpy.arange(
-        (s // 2 + o) // r, (s // 2 + o + a * t) // r, t // r)
+        (s // 2 + o) // r, (s // 2 + o + a * t) // r, t // r)[:a] # Hack to avoid a+1 points
             for o, s, t, a in zip(offset, size, step, activation_shape))
 
 def full_arange(output_shape):
