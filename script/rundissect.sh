@@ -137,11 +137,10 @@ if [ -z "${FORCE##*pid*}" ] || [ ! -e $WORKDIR/$DIR/job.pid ]
 then
     exec &> >(tee -a "$WORKDIR/$DIR/job.log")
     echo "Beginning pid $$ on host $(hostname) at $(date)"
-    trap "rm -rf $WORKDIR/$DIR/job.pid $WORKDIR/$DIR/job.host" EXIT
-    echo $$ > $WORKDIR/$DIR/job.pid
-    echo $(hostname) > $WORKDIR/$DIR/job.host
+    trap "rm -rf $WORKDIR/$DIR/job.pid" EXIT
+    echo $(hostname) $$ > $WORKDIR/$DIR/job.pid
 else
-    echo "Already running $DIR under pid $(cat $WORKDIR/$DIR/job.pid)"
+    echo "Already running $DIR at $(cat $WORKDIR/$DIR/job.pid)"
     exit 1
 fi
 
@@ -281,20 +280,37 @@ fi
 
 
 # Step 5: we just run over the tally file to extract whatever score we
-# want to derive.  That's pretty easy, so we also generate HTML at the
-# same time.
-if [ -z "${FORCE##*view*}" ] || \
-  ! ls $(printf " $WORKDIR/$DIR/html/%s.html" "${LAYERA[@]}") || \
+# want to derive.  That gets summarized in a [layer]-result.csv file.
+if [ -z "${FORCE##*result*}" ] || \
   ! ls $(printf " $WORKDIR/$DIR/%s-result.csv" "${LAYERA[@]}")
 then
 
-echo 'Generating views'
-python src/viewprobe.py \
+echo 'Generating result.csv'
+python src/makeresult.py
     --directory $WORKDIR/$DIR \
-    --format csv,html,quantmat \
-    --imscale 72 \
-    --imsize $RESOLUTION \
     --blobs $LAYERS
+
+[[ $? -ne 0 ]] && exit $?
+
+echo makeresult > $WORKDIR/$DIR/job.done
+fi
+
+if [ -z "${ENDAFTER##*result*}" ]
+then
+  exit 0
+fi
+
+# Step 6: now generate the HTML visualization and images.
+if [ -z "${FORCE##*report*}" ] || \
+  ! ls $(printf " $WORKDIR/$DIR/html/%s.html" "${LAYERA[@]}") || \
+  ! ls $(printf " $WORKDIR/$DIR/html/image/%s-bargraph.svg" "${LAYERA[@]}")
+then
+
+echo 'Generating report'
+python src/report.py \
+    --directory $WORKDIR/$DIR \
+    --blobs $LAYERS \
+    --force 1
 
 [[ $? -ne 0 ]] && exit $?
 

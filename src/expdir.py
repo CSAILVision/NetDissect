@@ -66,7 +66,7 @@ class ExperimentDirectory:
     def basename(self):
         return os.path.basename(self.directory)
 
-    def filename(self, name, last=True, decimal=False,
+    def filename(self, name=None, last=True, decimal=False,
             blob=None, part=None, directory=None, aspair=False):
         '''
         Expands out a filename.  For example:
@@ -84,17 +84,20 @@ class ExperimentDirectory:
         # Handle arrays of names
         if isinstance(name, basestring):
             name = [name]
+        elif name is None:
+            name = []
         # Expand out dissection directory.
         path = [self.directory]
         if directory is not None:
             path.append(directory)
-        path.extend(name)
         # Insert part name into filename if specified.
         if part is not None:
-            path[-1] = '%s-%s' % (fn_safe(part), path[-1])
+            name.insert(0, part)
         # Insert blob name into filename if specified.
         if blob is not None:
-            path[-1] = '%s-%s' % (fn_safe(blob), path[-1])
+            name.insert(0, fn_safe(blob))
+        # Assemble filename
+        path.append('-'.join(name))
         fn = os.path.join(*path)
         # Expand out numbered globs.
         if '*' in fn:
@@ -102,6 +105,11 @@ class ExperimentDirectory:
             if aspair:
                 return (n, fn)
         return fn
+
+    def has(self, name=None, last=True, decimal=False,
+            blob=None, part=None, directory=None, aspair=False):
+        return os.path.exists(self.filename(name=name, last=last,
+            decimal=decimal, blob=blob, part=part, directory=directory))
 
     def glob_number(self, name, last=True, decimal=False, blob=None, part=None):
         '''
@@ -275,13 +283,20 @@ class ExperimentDirectory:
         dimension from the size of the file.
         '''
         knownshape = None
+        if shape is not None and not isinstance(shape, (list, tuple)):
+            shape = (shape,)
         if shape is not None and -1 not in shape:
             knownshape = shape
         nameargs = dict(kwargs)
         if 'inc' not in nameargs:
             nameargs['inc'] = (mode and 'w' in mode)
+        aspair = ('aspair' in nameargs) and nameargs['aspair']
+        if aspair:
+            num, fn = self.mmap_filename(**nameargs)
+        else:
+            fn = self.mmap_filename(**nameargs)
         result = numpy.memmap(
-                self.mmap_filename(**nameargs),
+                fn,
                 mode=mode,
                 dtype=dtype,
                 shape=knownshape)
@@ -290,7 +305,10 @@ class ExperimentDirectory:
             lastdim = len(result) // abs(numpy.prod(shape))
             inferred = tuple(map(lambda x: x if x >= 0 else lastdim, shape))
             result.shape = inferred
-        return result
+        if aspair:
+            return num, result
+        else:
+            return result
 
     def cached_mmap(self, shape=None, mode='r', dtype='float32', **kwargs):
         '''
@@ -360,7 +378,7 @@ def numbered_glob(pattern, last=True, decimal=False, every=False):
                 else:
                     n = float('0.' + m.group(1))
             else:
-                n = int(m.group(1))
+                n = int(m.group(1).strip('.'))
             all_results.append((c, n))
             if best_n is None or (best_n < n) == last:
                 best_n = n
