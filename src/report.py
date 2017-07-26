@@ -50,7 +50,8 @@ def generate_html_summary(ed, ds, layer,
                 save=ed.filename('html/' + barfn))
         html.extend([
             '<div class="histogram">',
-            '<img class="img-fluid" src="%s">' % barfn,
+            '<img class="img-fluid" src="%s" title="Summary of %s %s">' % (
+                barfn, ed.basename(), layer),
             '</div>'
             ])
     if gridwidth is None:
