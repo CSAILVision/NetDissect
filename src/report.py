@@ -22,7 +22,7 @@ def generate_html_summary(ed, ds, layer,
         gridwidth=None, gap=3, limit=None, force=False,
         include_hist=False, verbose=False):
     print 'Generating html summary', (
-        ed.filename(['html', '%s.html' % expdir.fn_safe(layer)]))
+        ed.filename('html/%s.html' % expdir.fn_safe(layer)))
     # Grab tally stats
     # bestcat_pciou, name_pciou, score_pciou, _, _, _, _ = (tally_stats)
     if verbose:
