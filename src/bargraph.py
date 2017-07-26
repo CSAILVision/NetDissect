@@ -1,11 +1,7 @@
 import re
 import expdir
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import itertools
 import operator
-matplotlib.rcParams.update({'font.size': 18})
 from xml.etree import ElementTree as et
  
 default_category_order = [
