@@ -126,7 +126,7 @@ if [ -z $DIR ]; then
   exit 1
 fi
 
-if [ -z $LAYERS ]; then
+if [ -z "${LAYERS}" ]; then
   echo '--layers layers' must be specified
   exit 1
 fi
