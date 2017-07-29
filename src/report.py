@@ -33,27 +33,24 @@ def generate_html_summary(ed, ds, layer,
         imsize = layerprobe.input_dim[0]
     if imscale is None:
         imscale = imsize
-    categories = ds.category_names()
-    records = ed.load_csv(blob=layer, part='result')
-    records.sort(key=lambda record: int(record['unit']))
-    scores = numpy.asarray([float(record['score']) for record in records])
-    ordering = scores.argsort()[::-1]
     top = max_act_indexes(layerprobe, count=imcount)
     ed.ensure_dir('html','image')
     html = [html_prefix]
+    rendered_order = []
+    barfn = 'image/%s-bargraph.svg' % (
+            expdir.fn_safe(layer))
+    bargraph.bar_graph_svg(ed, layer, barheight=100,
+            barwidth=12, threshold=threshold,
+            rendered_order=rendered_order,
+            save=ed.filename('html/' + barfn))
+    html.extend([
+        '<div class="histogram">',
+        '<img class="img-fluid" src="%s" title="Summary of %s %s">' % (
+            barfn, ed.basename(), layer),
+        '</div>'
+        ])
+    html.append(html_gridheader)
 
-    if include_hist:
-        barfn = 'image/%s-bargraph.svg' % (
-                expdir.fn_safe(layer))
-        bargraph.bar_graph_svg(ed, layer, barheight=100,
-                barwidth=12, threshold=threshold,
-                save=ed.filename('html/' + barfn))
-        html.extend([
-            '<div class="histogram">',
-            '<img class="img-fluid" src="%s" title="Summary of %s %s">' % (
-                barfn, ed.basename(), layer),
-            '</div>'
-            ])
     if gridwidth is None:
         gridname = ''
         gridwidth = imcount
@@ -62,10 +59,14 @@ def generate_html_summary(ed, ds, layer,
         gridname = '-%d' % gridwidth
         gridheight = (imcount + gridwidth - 1) // gridwidth
 
-    html.append('<div class="unitgrid">')
+    html.append('<div class="unitgrid"') # Leave off > to eat spaces
     if limit is not None:
-        ordering = ordering[:limit]
-    for cell_count, unit in enumerate(ordering):
+        rendered_order = rendered_order[:limit]
+    for i, record in enumerate(
+            sorted(rendered_order, key=lambda record: -float(record['score']))):
+        record['score-order'] = i
+    for label_order, record in enumerate(rendered_order):
+        unit = int(record['unit']) - 1 # zero-based unit indexing
         imfn = 'image/%s%s-%04d.jpg' % (
                 expdir.fn_safe(layer), gridname, unit)
         if force or not ed.has('html/%s' % imfn):
@@ -86,8 +87,9 @@ def generate_html_summary(ed, ds, layer,
                       col*(imsize+gap):col*(imsize+gap)+imsize,:] = vis
             imsave(ed.filename('html/' + imfn), tiled)
         # Generate the wrapper HTML
-        record = records[unit]
-        html.append('<div class="unit">')
+        graytext = ' lowscore' if float(record['score']) < threshold else ''
+        html.append('><div class="unit%s" data-order="%d %d %d">' %
+                (graytext, label_order, record['score-order'], unit + 1))
         html.append('<div class="unitlabel">%s</div>' % fix(record['label']))
         html.append('<div class="info">' +
             '<span class="layername">%s</span> ' % layer +
@@ -98,8 +100,8 @@ def generate_html_summary(ed, ds, layer,
         html.append(
             '<div class="thumbcrop"><img src="%s" height="%d"></div>' %
             (imfn, imscale))
-        html.append('</div>')
-    html.append('</div>')
+        html.append('</div') # Leave off > to eat spaces
+    html.append('></div>')
     html.extend([html_suffix]);
     with open(ed.filename('html/%s.html' % expdir.fn_safe(layer)), 'w') as f:
         f.write('\n'.join(html))
@@ -184,6 +186,9 @@ html_prefix = '''
   text-align: center;
   line-height: 1;
 }
+.lowscore .unitlabel {
+   color: silver;
+}
 .thumbcrop {
   overflow: hidden;
   width: 288px;
@@ -227,10 +232,35 @@ html_prefix = '''
 .img-scroller .img-fluid {
   max-width: initial;
 }
+.gridheader {
+  text-align: right;
+  font-size: 10px;
+  margin-bottom: 10px;
+  margin-right: 30px;
+  cursor: default;
+}
+.sortby {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.sortby.currentsort {
+  text-decoration: none;
+  font-weight: bold;
+  cursor: default;
+}
 </style>
 </head>
 <body class="unitviz">
 <div class="container-fluid">
+'''
+
+html_gridheader = '''
+<div class="gridheader">
+sort by
+<span class="sortby currentsort" data-index="0">label</span>
+<span class="sortby" data-index="1">score</span>
+<span class="sortby" data-index="2">unit</span>
+</div>
 '''
 
 html_suffix = '''
@@ -291,6 +321,18 @@ $(document).on('click', '[data-toggle=lightbox]', function(event) {
 $(document).on('keydown', function(event) {
     $('#lightbox').modal('hide');
 });
+$(document).on('click', '.sortby', function(event) {
+    var sortindex = +$(this).data('index');
+    sortBy(sortindex);
+    $('.sortby').removeClass('currentsort');
+    $(this).addClass('currentsort');
+});
+function sortBy(index) {
+  $('.unitgrid').find('.unit').sort(function (a, b) {
+     return +$(a).eq(0).data('order').split(' ')[index] -
+            +$(b).eq(0).data('order').split(' ')[index];
+  }).appendTo('.unitgrid');
+}
 </script>
 </body>
 </html>
@@ -356,7 +398,6 @@ if __name__ == '__main__':
                     imcount=args.imcount,
                     gridwidth=args.gridwidth,
                     force=args.force,
-                    include_hist=True,
                     threshold=args.threshold,
                     verbose=True)
     except:

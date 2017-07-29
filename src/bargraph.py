@@ -42,6 +42,7 @@ def bar_graph_svg(ed, blob, barheight, barwidth,
         order=None,
         show_labels=True,
         threshold=0.04,
+        rendered_order=None,
         save=None):
     records = ed.load_csv(blob=blob, part='result')
     # ['unit', 'category', 'label', 'score']
@@ -84,7 +85,16 @@ def bar_graph_svg(ed, blob, barheight, barwidth,
         labels.extend(filtered)
         heights.extend([label_counts[label] for label in filtered])
         categories.append((cat, len(filtered)))
-
+    # Sort records in histogram order and output them if requested
+    if rendered_order is not None:
+        rendered_order.extend(sorted(records, key=lambda record: (
+            # Items below score threshold are sorted last, by score
+            (len(category_order), 0, 0, -float(record['score']))
+                if float(record['score']) < threshold else
+            # Others are sorted by category, label count/score, and score
+            (category_order.index(label_cats[record['label']]),
+                -label_counts[record['label']], -label_score[record['label']],
+                    -float(record['score'])))))
     filename = None
     if save:
         if save == True:
@@ -126,7 +136,7 @@ def make_svg_bargraph(labels, heights, categories,
     et.SubElement(svg, 'text', x='0', y='0',
             style=('font-family:sans-serif;font-size:%dpx;text-anchor:middle;'+
             'transform:translate(%dpx, %dpx) rotate(-90deg)') %
-            (textsize, x - gap - textsize, basey - h * unitheight / 2)
+            (textsize, x - gap - 1.2 * textsize, basey - h * unitheight / 2)
             ).text = 'units'
     # Draw big category background rectangles
     for catindex, (cat, catcount) in enumerate(categories):
