@@ -28,7 +28,7 @@ caffe.set_device(0)
 def create_probe(
         directory, dataset, definition, weights, mean, blobs,
         colordepth=3,
-        rotation_seed=None, rotation_power=1,
+        rotation_seed=None, rotation_power=1, rotation_unpermute=False,
         limit=None, split=None,
         batch_size=16, ahead=4,
         cl_args=None, verbose=True):
@@ -93,7 +93,8 @@ def create_probe(
         # Compute random rotation for each blob, if needed
         if rot is not None:
             rot[blob] = rotate.randomRotationPowers(
-                shape[1], [rotation_power], rotation_seed)[0]
+                shape[1], [rotation_power], rotation_seed,
+                unpermute=rotation_unpermute)[0]
         ed.save_info(blob=blob, data=dict(
             name=blob, shape=shape, fieldmap=fieldmap))
 
@@ -239,7 +240,11 @@ if __name__ == '__main__':
         parser.add_argument(
                 '--rotation_power',
                 type=float, default=1.0,
-                help='the power of hte random rotation')
+                help='the power of the random rotation')
+        parser.add_argument(
+                '--rotation_unpermute',
+                type=int, default=0,
+                help='set to 1 to unpermute random rotation')
         parser.add_argument(
                 '--colordepth',
                 type=int, default=3,
@@ -251,7 +256,9 @@ if __name__ == '__main__':
             numpy.array(args.mean, dtype=numpy.float32), args.blobs,
             batch_size=args.batch_size, ahead=args.ahead, limit=args.limit,
             colordepth=args.colordepth,
-            rotation_seed=args.rotation_seed, rotation_power=args.rotation_power,
+            rotation_seed=args.rotation_seed,
+            rotation_power=args.rotation_power,
+            rotation_unpermute=args.rotation_unpermute,
             split=args.split, cl_args=args, verbose=True)
     except:
         traceback.print_exc(file=sys.stdout)

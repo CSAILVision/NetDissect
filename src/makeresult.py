@@ -9,7 +9,6 @@ import loadseg
 from scipy.misc import imread, imresize, imsave
 from loadseg import normalize_label
 import expdir
-import plotunique
 
 def open_dataset(ed):
     return loadseg.SegmentationData(ed.load_info().dataset)

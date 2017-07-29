@@ -28,6 +28,8 @@ MEAN="0 0 0"
 FORCE="none"
 ENDAFTER="none"
 MODELDIR="zoo"
+ROTATION_SEED=""
+ROTATION_POWER="1"
 
 # Start from parent directory of script
 cd "$(dirname "$(dirname "$(readlink -f "$0")")")"
@@ -85,6 +87,14 @@ case $key in
     ;;
     --mean)
     MEAN="$2"
+    shift
+    ;;
+    --rotation_seed)
+    ROTATION_SEED="$2"
+    shift
+    ;;
+    --rotation_power)
+    ROTATION_POWER="$2"
     shift
     ;;
     -w|--workdir)
@@ -178,6 +188,15 @@ echo MEAN = "${MEAN}"
 echo FORCE = "${FORCE}"
 echo ENDAFTER = "${ENDAFTER}"
 
+# Set up rotation flag if rotation is selected
+ROTATION_FLAG=""
+if [ ! -z "${ROTATION_SEED}" ]
+then
+    ROTATION_FLAG=" --rotation_seed ${ROTATION_SEED}
+                    --rotation_unpermute 1
+                    --rotation_power ${ROTATION_POWER} "
+fi
+
 # Step 1: do a forward pass over the network specified by the model files.
 # The output is e.g.,: "conv5.mmap", "conv5-info.txt"
 if [ -z "${FORCE##*probe*}" ] || \
@@ -193,6 +212,7 @@ python src/netprobe.py \
     --batch_size $PROBEBATCH \
     --mean $MEAN \
     --colordepth $COLORDEPTH \
+    ${ROTATION_FLAG} \
     --dataset $DATASET
 
 [[ $? -ne 0 ]] && exit $?
@@ -286,7 +306,7 @@ if [ -z "${FORCE##*result*}" ] || \
 then
 
 echo 'Generating result.csv'
-python src/makeresult.py
+python src/makeresult.py \
     --directory $WORKDIR/$DIR \
     --blobs $LAYERS
 
@@ -310,7 +330,7 @@ echo 'Generating report'
 python src/report.py \
     --directory $WORKDIR/$DIR \
     --blobs $LAYERS \
-    --force 1
+    --threshold ${THRESHOLD}
 
 [[ $? -ne 0 ]] && exit $?
 

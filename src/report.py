@@ -20,7 +20,7 @@ def open_dataset(ed):
 def generate_html_summary(ed, ds, layer,
         imsize=None, imcount=50, imscale=None, tally_stats=None,
         gridwidth=None, gap=3, limit=None, force=False,
-        include_hist=False, verbose=False):
+        include_hist=False, threshold=0.04, verbose=False):
     print 'Generating html summary', (
         ed.filename('html/%s.html' % expdir.fn_safe(layer)))
     # Grab tally stats
@@ -46,7 +46,7 @@ def generate_html_summary(ed, ds, layer,
         barfn = 'image/%s-bargraph.svg' % (
                 expdir.fn_safe(layer))
         bargraph.bar_graph_svg(ed, layer, barheight=100,
-                barwidth=12, threshold=layerprobe.level,
+                barwidth=12, threshold=threshold,
                 save=ed.filename('html/' + barfn))
         html.extend([
             '<div class="histogram">',
@@ -343,6 +343,10 @@ if __name__ == '__main__':
                 '--imcount',
                 type=int, default=50,
                 help='number of thumbnails to include')
+        parser.add_argument(
+                '--threshold',
+                type=float, default=0.04,
+                help='minimum IoU to count as a detector')
         args = parser.parse_args()
         ed = expdir.ExperimentDirectory(args.directory)
         ds = open_dataset(ed)
@@ -353,6 +357,7 @@ if __name__ == '__main__':
                     gridwidth=args.gridwidth,
                     force=args.force,
                     include_hist=True,
+                    threshold=args.threshold,
                     verbose=True)
     except:
         traceback.print_exc(file=sys.stdout)
