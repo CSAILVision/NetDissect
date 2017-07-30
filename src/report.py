@@ -49,7 +49,18 @@ def generate_html_summary(ed, ds, layer,
             barfn, ed.basename(), layer),
         '</div>'
         ])
-    html.append(html_gridheader)
+    html.append('<div class="gridheader">')
+    html.append('<div class="layerinfo">')
+    html.append('%d/%d units covering %d concepts with IoU &ge; %.2f' % (
+        len([record for record in rendered_order
+            if float(record['score']) >= threshold]),
+        len(rendered_order),
+        len(set(record['label'] for record in rendered_order
+            if float(record['score']) >= threshold)),
+        threshold))
+    html.append('</div>')
+    html.append(html_sortheader)
+    html.append('</div>')
 
     if gridwidth is None:
         gridname = ''
@@ -219,6 +230,7 @@ html_prefix = '''
 }
 .histogram {
   text-align: center;
+  margin-top: 3px;
 }
 .img-wrapper {
   text-align: center;
@@ -233,11 +245,22 @@ html_prefix = '''
   max-width: initial;
 }
 .gridheader {
-  text-align: right;
-  font-size: 10px;
+  font-size: 12px;
   margin-bottom: 10px;
+  margin-left: 30px;
   margin-right: 30px;
+}
+.gridheader:after {
+  content: '';
+  display: table;
+  clear: both;
+}
+.sortheader {
+  float: right;
   cursor: default;
+}
+.layerinfo {
+  float: left;
 }
 .sortby {
   text-decoration: underline;
@@ -254,8 +277,8 @@ html_prefix = '''
 <div class="container-fluid">
 '''
 
-html_gridheader = '''
-<div class="gridheader">
+html_sortheader = '''
+<div class="sortheader">
 sort by
 <span class="sortby currentsort" data-index="0">label</span>
 <span class="sortby" data-index="1">score</span>
