@@ -71,17 +71,13 @@ Note that you can run ```script/dlbroden.sh``` to download Broden dataset with i
 
 These are, respectively, the HTML-formatted report, the semantics of the units of the layer summarized as a bar graph, visualizations of all the units of the layer (using zero-indexed unit numbers), and a CSV file containing raw scores of the top matching semantic concepts in each category for each unit of the layer.
 
-<!--
-After the csv file containing the raw data of the unit semantics is generated, you could use the sample scripts in ```plot/extract_csv.m``` to plot the figure. ```plot/semantics_cvpr_release.mat``` contains the semantics of all the networks analyzed in the CVPR paper. It will generate a [figure](plot/semantics_allnetwork.pdf) showing the number of unique detectors across different networks.
--->
+* Dissect results of all the existing networks in mat format. After the csv file containing the raw data of the unit semantics is generated, you could use the sample scripts in ```plot/extract_csv.m``` to plot the figure. ```plot/semantics_cvpr_release.mat``` contains the semantics of all the networks analyzed in the CVPR paper. It will generate a [figure](plot/semantics_allnetwork.pdf) showing the number of unique detectors across different networks.
 
 
 ## Reference 
 If you find the codes useful, please cite this paper
 ```
-@inproceedings{net
-
-2017,
+@inproceedings{netdissect2017,
   title={Network Dissection: Quantifying Interpretability of Deep Visual Representations},
   author={Bau, David and Zhou, Bolei and Khosla, Aditya and Oliva, Aude and Torralba, Antonio},
   booktitle={Computer Vision and Pattern Recognition},
