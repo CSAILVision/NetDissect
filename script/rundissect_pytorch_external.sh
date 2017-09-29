@@ -4,7 +4,6 @@ DIR=pytorch_alexnet_imagenet
 ARCH='alexnet' # [alexnet,squeezenet1_1,resnet18,...]. It should work for all the models in https://github.com/pytorch/vision/tree/master/torchvision/models
 LAYERS="features"
 DATASET=dataset/broden1_224
-WEIGHTS="none"
 NUMCLASSES=1000
 
 # default setting

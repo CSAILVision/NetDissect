@@ -16,9 +16,6 @@ import time
 import sys
 
 os.environ['GLOG_minloglevel'] = '2'
-import caffe
-from caffe.proto import caffe_pb2
-from google.protobuf import text_format
 from scipy.misc import imresize, imread
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.interpolation import zoom
@@ -29,8 +26,6 @@ import upsample
 import rotate
 import expdir
 
-caffe.set_mode_gpu()
-caffe.set_device(0)
 
 def create_probe(
         directory, dataset, definition, weights, mean, blobs,
@@ -47,8 +42,8 @@ def create_probe(
     '''
     directory: where to place the probe_conv5.mmap files.
     data: the AbstractSegmentation data source to draw upon
-    definition: the filename for the caffe prototxt
-    weights: the filename for the caffe model weights
+    definition: the filename for the pytorch
+    weights: the filename for the weights
     mean: to use to normalize rgb values for the network
     blobs: ['conv3', 'conv4', 'conv5'] to probe
     '''
@@ -57,7 +52,7 @@ def create_probe(
     data = loadseg.SegmentationData(args.dataset)
 
     # the network to dissect
-    if args.weights == None:
+    if args.weights == 'none':
         # load the imagenet pretrained model
         net = torchvision.models.__dict__[args.definition](pretrained=True)
     else:
@@ -158,7 +153,7 @@ def create_probe(
         # previous feedforward case
         inp = inp[:,::-1,:,:]
         inp_tensor = V(torch.from_numpy(inp.copy()))
-        inp_tensor.div_(255.0*0.224) # approximately normalize the input to make the images scaled at around 1.
+        inp_tensor.div_(255.0*0.224) # hack: approximately normalize the input to make the images scaled at around 1.
         inp_tensor = inp_tensor.cuda()
         result = net.forward(inp_tensor)
         # output the hooked feature
@@ -227,7 +222,7 @@ if __name__ == '__main__':
         import loadseg
 
         parser = argparse.ArgumentParser(description=
-            'Probe a caffe network and save results in a directory.')
+            'Probe a pytorch network and save results in a directory.')
         parser.add_argument(
                 '--directory',
                 default='.',

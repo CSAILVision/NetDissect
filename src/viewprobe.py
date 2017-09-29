@@ -109,13 +109,13 @@ class NetworkProbe:
                       col*(imsize+1):col*(imsize+1)+imsize,:] = vis
             imfn = 'image/%s%s-%04d.jpg' % (
                     expdir.fn_safe(layer), gridname, unit)
-            imsave(self.ed.filename(['html', imfn]), tiled)
+            imsave(self.ed.filename(os.path.join('html', imfn)), tiled)
             labels = '; '.join(['%s (%s, %f)' %
                     (name_pciou[c][unit], categories[c], score_pciou[c, unit])
                     for c in bestcat_pciou[:,unit]])
             html.extend([
                 '<h6>%s unit %d: %s</h6>' % (layer, unit + 1, labels),
-                '<img src="%s" height="%d">' % (imfn, imscale)
+                '<img src="%s" height="%d">' % (os.path.join('html', imfn), imscale)
                 ])
         html.extend([
             '</div>', '</body>', '</html>', ''])
