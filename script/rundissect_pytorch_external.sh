@@ -162,20 +162,37 @@ fi
 
 
 # Step 5: we just run over the tally file to extract whatever score we
-# want to derive.  That's pretty easy, so we also generate HTML at the
-# same time.
-if [ -z "${FORCE##*view*}" ] || \
-  ! ls $(printf " $WORKDIR/$DIR/html/%s.html" "${LAYERA[@]}") || \
+# want to derive.  That gets summarized in a [layer]-result.csv file.
+if [ -z "${FORCE##*result*}" ] || \
   ! ls $(printf " $WORKDIR/$DIR/%s-result.csv" "${LAYERA[@]}")
 then
 
-echo 'Generating views'
-python src/viewprobe.py \
+echo 'Generating result.csv'
+python src/makeresult.py \
     --directory $WORKDIR/$DIR \
-    --format csv,html,quantmat \
-    --imscale 72 \
-    --imsize $RESOLUTION \
     --blobs $LAYERS
+
+[[ $? -ne 0 ]] && exit $?
+
+echo makeresult > $WORKDIR/$DIR/job.done
+fi
+
+if [ -z "${ENDAFTER##*result*}" ]
+then
+  exit 0
+fi
+
+# Step 6: now generate the HTML visualization and images.
+if [ -z "${FORCE##*report*}" ] || \
+  ! ls $(printf " $WORKDIR/$DIR/html/%s.html" "${LAYERA[@]}") || \
+  ! ls $(printf " $WORKDIR/$DIR/html/image/%s-bargraph.svg" "${LAYERA[@]}")
+then
+
+echo 'Generating report'
+python src/report.py \
+    --directory $WORKDIR/$DIR \
+    --blobs $LAYERS \
+    --threshold ${THRESHOLD}
 
 [[ $? -ne 0 ]] && exit $?
 
