@@ -45,7 +45,7 @@ class QuantileVector:
             return
         # If we are sampling, then subsample a large chunk at a time.
         self._scan_extremes(incoming)
-        chunksize = numpy.ceil[self.buffersize / self.samplerate]
+        chunksize = numpy.ceil(self.buffersize / self.samplerate)
         for index in xrange(0, len(incoming), chunksize):
             batch = incoming[index:index+chunksize]
             sample = batch[self.random.binomial(1, self.samplerate, len(batch))]
@@ -65,7 +65,7 @@ class QuantileVector:
                         print 'SAMPLING'
                         self._scan_extremes(incoming)
                     incoming = incoming[self.random.binomial(1, 0.5,
-                        len(incoming - index))]
+                        len(incoming))]
                     index = 0
                     supplied = len(incoming)
                 ff = self.firstfree[0]
