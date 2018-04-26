@@ -4,6 +4,7 @@ viewprobe creates visualizations for a certain eval.
 
 import os
 import re
+import csv
 import numpy
 import upsample
 import loadseg
@@ -76,6 +77,7 @@ def generate_html_summary(ed, ds, layer,
     for i, record in enumerate(
             sorted(rendered_order, key=lambda record: -float(record['score']))):
         record['score-order'] = i
+    single_image_activations = []
     for label_order, record in enumerate(rendered_order):
         unit = int(record['unit']) - 1 # zero-based unit indexing
         imfn = 'image/%s%s-%04d.jpg' % (
@@ -106,7 +108,9 @@ def generate_html_summary(ed, ds, layer,
                     vis = imresize(vis, (imsize, imsize))
                 imfn = 'single/%s-%04d-%03d.jpg' % (
                     expdir.fn_safe(layer), unit, x)
-                imsave(ed.filename('html/' + imfn), vis)
+                maxact = layerprobe.imgmax[index, unit]
+                single_image_activations.append(
+                        [layer, unit, x, index, maxact, imfn])
         # Generate the wrapper HTML
         graytext = ' lowscore' if float(record['score']) < threshold else ''
         html.append('><div class="unit%s" data-order="%d %d %d">' %
@@ -126,6 +130,10 @@ def generate_html_summary(ed, ds, layer,
     html.extend([html_suffix]);
     with open(ed.filename('html/%s.html' % expdir.fn_safe(layer)), 'w') as f:
         f.write('\n'.join(html))
+    if single_image_activations:
+        with open(ed.filename('html/single/activations.csv'), 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows(single_image_activations)
 
 def instance_data(ds, i, normalize=True):
     record, shape = ds.resolve_segmentation(
