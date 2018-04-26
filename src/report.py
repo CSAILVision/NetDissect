@@ -19,8 +19,8 @@ def open_dataset(ed):
 
 def generate_html_summary(ed, ds, layer,
         imsize=None, imcount=50, imscale=None, tally_stats=None,
-        gridwidth=None, gap=3, limit=None, force=False,
-        include_hist=False, threshold=0.04, verbose=False):
+        gridwidth=None, gap=3, limit=None, make_single_images=None,
+        force=False, include_hist=False, threshold=0.04, verbose=False):
     print 'Generating html summary', (
         ed.filename('html/%s.html' % expdir.fn_safe(layer)))
     # Grab tally stats
@@ -97,6 +97,16 @@ def generate_html_summary(ed, ds, layer,
                 tiled[row*(imsize+gap):row*(imsize+gap)+imsize,
                       col*(imsize+gap):col*(imsize+gap)+imsize,:] = vis
             imsave(ed.filename('html/' + imfn), tiled)
+        # Also make individual single images if requested.
+        if make_single_images:
+            ed.ensure_dir('html','single')
+            for x, index in enumerate(top[unit]):
+                vis = activation_visualization(ds, layerprobe, unit, index)
+                if vis.shape[:2] != (imsize, imsize):
+                    vis = imresize(vis, (imsize, imsize))
+                imfn = 'single/%s-%04d-%03d.jpg' % (
+                    expdir.fn_safe(layer), unit, x)
+                imsave(ed.filename('html/' + imfn), vis)
         # Generate the wrapper HTML
         graytext = ' lowscore' if float(record['score']) < threshold else ''
         html.append('><div class="unit%s" data-order="%d %d %d">' %
@@ -409,6 +419,10 @@ if __name__ == '__main__':
                 type=int, default=50,
                 help='number of thumbnails to include')
         parser.add_argument(
+                '--make_single_images',
+                type=int, default=0,
+                help='generate single images in addition to strips')
+        parser.add_argument(
                 '--threshold',
                 type=float, default=0.04,
                 help='minimum IoU to count as a detector')
@@ -420,6 +434,7 @@ if __name__ == '__main__':
                     imsize=args.imsize, imscale=args.imscale,
                     imcount=args.imcount,
                     gridwidth=args.gridwidth,
+                    make_single_images=args.make_single_images,
                     force=args.force,
                     threshold=args.threshold,
                     verbose=True)

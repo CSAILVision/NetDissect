@@ -328,6 +328,7 @@ then
 
 echo 'Generating report'
 python src/report.py \
+    --make_single_images 1 \
     --directory $WORKDIR/$DIR \
     --blobs $LAYERS \
     --threshold ${THRESHOLD}
