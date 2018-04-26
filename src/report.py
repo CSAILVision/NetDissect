@@ -100,7 +100,7 @@ def generate_html_summary(ed, ds, layer,
         # Also make individual single images if requested.
         if make_single_images:
             ed.ensure_dir('html','single')
-            for x, index in enumerate(top[unit]):
+            for x, index in enumerate(top[unit][:make_single_images]):
                 vis = activation_visualization(ds, layerprobe, unit, index)
                 if vis.shape[:2] != (imsize, imsize):
                     vis = imresize(vis, (imsize, imsize))
